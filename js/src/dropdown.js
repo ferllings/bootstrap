@@ -51,6 +51,7 @@ const CLASS_NAME_DROPEND = 'dropend'
 const CLASS_NAME_DROPSTART = 'dropstart'
 const CLASS_NAME_DROPUP_CENTER = 'dropup-center'
 const CLASS_NAME_DROPDOWN_CENTER = 'dropdown-center'
+const CLASS_NAME_SUBLEVEL_DROPDOWN = 'is-sublevel'
 
 const SELECTOR_DATA_TOGGLE = '[data-bs-toggle="dropdown"]:not(.disabled):not(:disabled)'
 const SELECTOR_DATA_TOGGLE_SHOWN = `${SELECTOR_DATA_TOGGLE}.${CLASS_NAME_SHOW}`
@@ -58,6 +59,7 @@ const SELECTOR_MENU = '.dropdown-menu'
 const SELECTOR_NAVBAR = '.navbar'
 const SELECTOR_NAVBAR_NAV = '.navbar-nav'
 const SELECTOR_VISIBLE_ITEMS = '.dropdown-menu .dropdown-item:not(.disabled):not(:disabled)'
+const SELECTOR_MAIN_DATA_TOGGLE = '[data-bs-toggle="dropdown"]:not(.is-sublevel)'
 
 const PLACEMENT_TOP = isRTL() ? 'top-end' : 'top-start'
 const PLACEMENT_TOPEND = isRTL() ? 'top-start' : 'top-end'
@@ -100,6 +102,12 @@ class Dropdown extends BaseComponent {
     this._menu = SelectorEngine.next(this._element, SELECTOR_MENU)[0] ||
       SelectorEngine.prev(this._element, SELECTOR_MENU)[0] ||
       SelectorEngine.findOne(SELECTOR_MENU, this._parent)
+    if (element.closest(SELECTOR_MENU)) {
+      // If the element is already inside a dropdown
+      // then this is a submenu
+      element.classList.add(CLASS_NAME_SUBLEVEL_DROPDOWN)
+    }
+
     this._inNavbar = this._detectNavbar()
   }
 
@@ -420,7 +428,10 @@ class Dropdown extends BaseComponent {
 
     if (isUpOrDownEvent) {
       event.stopPropagation()
-      instance.show()
+      if (getToggleButton.matches(SELECTOR_MAIN_DATA_TOGGLE)) {
+        instance.show()
+      }
+
       instance._selectMenuItem(event)
       return
     }
